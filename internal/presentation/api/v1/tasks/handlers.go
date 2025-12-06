@@ -1,45 +1,38 @@
 package tasks
 
 import (
+	"crud/internal/application"
+	tasks_usecases "crud/internal/application/tasks/usecases"
 	"encoding/json"
 	"net/http"
 	"strconv"
 
-	tasks_usecases "crud/internal/application/tasks/usecases"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"go.uber.org/dig"
 )
 
 // Handler обработчик для задач
 type Handler struct {
-	createUseCase  *tasks_usecases.CreateTaskUseCase
-	getByIDUseCase *tasks_usecases.GetTaskByIDUseCase
-	listUseCase    *tasks_usecases.ListTasksUseCase
-	updateUseCase  *tasks_usecases.UpdateTaskUseCase
-	deleteUseCase  *tasks_usecases.DeleteTaskUseCase
+	container *dig.Container
 }
 
 // NewHandler создает новый обработчик задач
-func NewHandler(
-	createUseCase *tasks_usecases.CreateTaskUseCase,
-	getByIDUseCase *tasks_usecases.GetTaskByIDUseCase,
-	listUseCase *tasks_usecases.ListTasksUseCase,
-	updateUseCase *tasks_usecases.UpdateTaskUseCase,
-	deleteUseCase *tasks_usecases.DeleteTaskUseCase,
-) *Handler {
+func NewHandler(container *dig.Container) *Handler {
 	return &Handler{
-		createUseCase:  createUseCase,
-		getByIDUseCase: getByIDUseCase,
-		listUseCase:    listUseCase,
-		updateUseCase:  updateUseCase,
-		deleteUseCase:  deleteUseCase,
+		container: container,
 	}
 }
 
 // CreateTask создает новую задачу
 // POST /api/v1/tasks
 func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
+	useCase, err := application.ResolveFromContainer[*tasks_usecases.CreateTaskUseCase](h.container)
+	if err != nil {
+		http.Error(w, "Failed to resolve use case", http.StatusInternalServerError)
+		return
+	}
+
 	var req CreateTaskRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -52,7 +45,7 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.createUseCase.Execute(r.Context(), userID, req.Title, req.Description, req.Status)
+	task, err := useCase.Execute(r.Context(), userID, req.Title, req.Description, req.Status)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -68,6 +61,12 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 // GetTaskByID получает задачу по ID
 // GET /api/v1/tasks/{id}
 func (h *Handler) GetTaskByID(w http.ResponseWriter, r *http.Request) {
+	useCase, err := application.ResolveFromContainer[*tasks_usecases.GetTaskByIDUseCase](h.container)
+	if err != nil {
+		http.Error(w, "Failed to resolve use case", http.StatusInternalServerError)
+		return
+	}
+
 	idStr := chi.URLParam(r, "id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
@@ -75,7 +74,7 @@ func (h *Handler) GetTaskByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.getByIDUseCase.Execute(r.Context(), id)
+	task, err := useCase.Execute(r.Context(), id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -90,6 +89,12 @@ func (h *Handler) GetTaskByID(w http.ResponseWriter, r *http.Request) {
 // ListTasks получает список задач
 // GET /api/v1/tasks
 func (h *Handler) ListTasks(w http.ResponseWriter, r *http.Request) {
+	useCase, err := application.ResolveFromContainer[*tasks_usecases.ListTasksUseCase](h.container)
+	if err != nil {
+		http.Error(w, "Failed to resolve use case", http.StatusInternalServerError)
+		return
+	}
+
 	page := 1
 	pageSize := 10
 	var userID *uuid.UUID
@@ -117,7 +122,7 @@ func (h *Handler) ListTasks(w http.ResponseWriter, r *http.Request) {
 		status = &statusStr
 	}
 
-	tasks, total, err := h.listUseCase.Execute(r.Context(), userID, status, page, pageSize)
+	tasks, total, err := useCase.Execute(r.Context(), userID, status, page, pageSize)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -140,6 +145,12 @@ func (h *Handler) ListTasks(w http.ResponseWriter, r *http.Request) {
 // UpdateTask обновляет задачу
 // PUT /api/v1/tasks/{id}
 func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
+	useCase, err := application.ResolveFromContainer[*tasks_usecases.UpdateTaskUseCase](h.container)
+	if err != nil {
+		http.Error(w, "Failed to resolve use case", http.StatusInternalServerError)
+		return
+	}
+
 	idStr := chi.URLParam(r, "id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
@@ -153,7 +164,7 @@ func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.updateUseCase.Execute(r.Context(), id, req.Title, req.Description, req.Status)
+	task, err := useCase.Execute(r.Context(), id, req.Title, req.Description, req.Status)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -168,6 +179,12 @@ func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 // DeleteTask удаляет задачу
 // DELETE /api/v1/tasks/{id}
 func (h *Handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
+	useCase, err := application.ResolveFromContainer[*tasks_usecases.DeleteTaskUseCase](h.container)
+	if err != nil {
+		http.Error(w, "Failed to resolve use case", http.StatusInternalServerError)
+		return
+	}
+
 	idStr := chi.URLParam(r, "id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
@@ -175,7 +192,7 @@ func (h *Handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.deleteUseCase.Execute(r.Context(), id); err != nil {
+	if err := useCase.Execute(r.Context(), id); err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}

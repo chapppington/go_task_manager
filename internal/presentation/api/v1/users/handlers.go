@@ -1,55 +1,45 @@
 package users
 
 import (
+	"crud/internal/application"
+	users_usecases "crud/internal/application/users/usecases"
 	"encoding/json"
 	"net/http"
 	"strconv"
 
-	users_usecases "crud/internal/application/users/usecases"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"go.uber.org/dig"
 )
 
 // Handler обработчик для пользователей
 type Handler struct {
-	createUseCase     *users_usecases.CreateUserUseCase
-	getByIDUseCase    *users_usecases.GetUserByIDUseCase
-	getByEmailUseCase *users_usecases.GetUserByEmailUseCase
-	listUseCase       *users_usecases.ListUsersUseCase
-	updateUseCase     *users_usecases.UpdateUserUseCase
-	deleteUseCase     *users_usecases.DeleteUserUseCase
+	container *dig.Container
 }
 
 // NewHandler создает новый обработчик пользователей
-func NewHandler(
-	createUseCase *users_usecases.CreateUserUseCase,
-	getByIDUseCase *users_usecases.GetUserByIDUseCase,
-	getByEmailUseCase *users_usecases.GetUserByEmailUseCase,
-	listUseCase *users_usecases.ListUsersUseCase,
-	updateUseCase *users_usecases.UpdateUserUseCase,
-	deleteUseCase *users_usecases.DeleteUserUseCase,
-) *Handler {
+func NewHandler(container *dig.Container) *Handler {
 	return &Handler{
-		createUseCase:     createUseCase,
-		getByIDUseCase:    getByIDUseCase,
-		getByEmailUseCase: getByEmailUseCase,
-		listUseCase:       listUseCase,
-		updateUseCase:     updateUseCase,
-		deleteUseCase:     deleteUseCase,
+		container: container,
 	}
 }
 
 // CreateUser создает нового пользователя
 // POST /api/v1/users
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	useCase, err := application.ResolveFromContainer[*users_usecases.CreateUserUseCase](h.container)
+	if err != nil {
+		http.Error(w, "Failed to resolve use case", http.StatusInternalServerError)
+		return
+	}
+
 	var req CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	user, err := h.createUseCase.Execute(r.Context(), req.Email, req.Name)
+	user, err := useCase.Execute(r.Context(), req.Email, req.Name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -65,6 +55,12 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 // GetUserByID получает пользователя по ID
 // GET /api/v1/users/{id}
 func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
+	useCase, err := application.ResolveFromContainer[*users_usecases.GetUserByIDUseCase](h.container)
+	if err != nil {
+		http.Error(w, "Failed to resolve use case", http.StatusInternalServerError)
+		return
+	}
+
 	idStr := chi.URLParam(r, "id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
@@ -72,7 +68,7 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.getByIDUseCase.Execute(r.Context(), id)
+	user, err := useCase.Execute(r.Context(), id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -87,13 +83,19 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 // GetUserByEmail получает пользователя по email
 // GET /api/v1/users/email/{email}
 func (h *Handler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
+	useCase, err := application.ResolveFromContainer[*users_usecases.GetUserByEmailUseCase](h.container)
+	if err != nil {
+		http.Error(w, "Failed to resolve use case", http.StatusInternalServerError)
+		return
+	}
+
 	email := chi.URLParam(r, "email")
 	if email == "" {
 		http.Error(w, "Email parameter is required", http.StatusBadRequest)
 		return
 	}
 
-	user, err := h.getByEmailUseCase.Execute(r.Context(), email)
+	user, err := useCase.Execute(r.Context(), email)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -108,6 +110,12 @@ func (h *Handler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
 // ListUsers получает список пользователей
 // GET /api/v1/users
 func (h *Handler) ListUsers(w http.ResponseWriter, r *http.Request) {
+	useCase, err := application.ResolveFromContainer[*users_usecases.ListUsersUseCase](h.container)
+	if err != nil {
+		http.Error(w, "Failed to resolve use case", http.StatusInternalServerError)
+		return
+	}
+
 	page := 1
 	pageSize := 10
 
@@ -123,7 +131,7 @@ func (h *Handler) ListUsers(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	users, total, err := h.listUseCase.Execute(r.Context(), page, pageSize)
+	users, total, err := useCase.Execute(r.Context(), page, pageSize)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -146,6 +154,12 @@ func (h *Handler) ListUsers(w http.ResponseWriter, r *http.Request) {
 // UpdateUser обновляет пользователя
 // PUT /api/v1/users/{id}
 func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	useCase, err := application.ResolveFromContainer[*users_usecases.UpdateUserUseCase](h.container)
+	if err != nil {
+		http.Error(w, "Failed to resolve use case", http.StatusInternalServerError)
+		return
+	}
+
 	idStr := chi.URLParam(r, "id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
@@ -159,7 +173,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.updateUseCase.Execute(r.Context(), id, req.Email, req.Name)
+	user, err := useCase.Execute(r.Context(), id, req.Email, req.Name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -174,6 +188,12 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 // DeleteUser удаляет пользователя
 // DELETE /api/v1/users/{id}
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	useCase, err := application.ResolveFromContainer[*users_usecases.DeleteUserUseCase](h.container)
+	if err != nil {
+		http.Error(w, "Failed to resolve use case", http.StatusInternalServerError)
+		return
+	}
+
 	idStr := chi.URLParam(r, "id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
@@ -181,7 +201,7 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.deleteUseCase.Execute(r.Context(), id); err != nil {
+	if err := useCase.Execute(r.Context(), id); err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
