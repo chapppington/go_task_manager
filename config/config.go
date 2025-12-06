@@ -18,12 +18,12 @@ type Config struct {
 	PostgresPort     int
 }
 
-func LoadFromEnv() *Config {
+func NewConfig() *Config {
 	_ = godotenv.Load()
 
 	cfg := &Config{
 		APIPort:          getEnvAsInt("API_PORT", 8000),
-		PostgresDB:       getEnv("POSTGRES_DB", "url_shortener"),
+		PostgresDB:       getEnv("POSTGRES_DB", "tasks"),
 		PostgresUser:     getEnv("POSTGRES_USER", "postgres"),
 		PostgresPassword: getEnv("POSTGRES_PASSWORD", "postgres"),
 		PostgresHost:     getEnv("POSTGRES_HOST", "postgres"),
