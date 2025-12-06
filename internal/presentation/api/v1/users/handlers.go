@@ -55,7 +55,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := ResponseFromEntity(user)
+	response := UserDTOFromEntity(user)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -78,7 +78,7 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := ResponseFromEntity(user)
+	response := UserDTOFromEntity(user)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
@@ -99,7 +99,7 @@ func (h *Handler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := ResponseFromEntity(user)
+	response := UserDTOFromEntity(user)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
@@ -131,7 +131,7 @@ func (h *Handler) ListUsers(w http.ResponseWriter, r *http.Request) {
 
 	response := make([]UserResponse, len(users))
 	for i, user := range users {
-		response[i] = ResponseFromEntity(user)
+		response[i] = UserDTOFromEntity(user)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -165,7 +165,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := ResponseFromEntity(user)
+	response := UserDTOFromEntity(user)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)

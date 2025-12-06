@@ -32,8 +32,8 @@ type TaskResponse struct {
 	UpdatedAt   string `json:"updated_at"`
 }
 
-// ResponseFromEntity создает TaskResponse из сущности задачи
-func ResponseFromEntity(task *tasks_domain.Task) TaskResponse {
+// TaskDTOFromEntity создает TaskResponse из сущности задачи
+func TaskDTOFromEntity(task *tasks_domain.Task) TaskResponse {
 	return TaskResponse{
 		ID:          task.ID.String(),
 		UserID:      task.UserID.String(),

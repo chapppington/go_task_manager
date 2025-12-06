@@ -27,8 +27,8 @@ type UserResponse struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// ResponseFromEntity создает UserResponse из сущности пользователя
-func ResponseFromEntity(user *users_domain.User) UserResponse {
+// UserDTOFromEntity создает UserResponse из сущности пользователя
+func UserDTOFromEntity(user *users_domain.User) UserResponse {
 	return UserResponse{
 		ID:        user.ID.String(),
 		Email:     user.Email.Value(),

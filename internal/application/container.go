@@ -75,3 +75,12 @@ func Resolve[T any]() (T, error) {
 	})
 	return result, err
 }
+
+// ResolveFromContainer получает зависимость из переданного контейнера по типу
+func ResolveFromContainer[T any](container *dig.Container) (T, error) {
+	var result T
+	err := container.Invoke(func(dep T) {
+		result = dep
+	})
+	return result, err
+}

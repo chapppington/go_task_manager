@@ -58,7 +58,7 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := ResponseFromEntity(task)
+	response := TaskDTOFromEntity(task)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -81,7 +81,7 @@ func (h *Handler) GetTaskByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := ResponseFromEntity(task)
+	response := TaskDTOFromEntity(task)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
@@ -125,7 +125,7 @@ func (h *Handler) ListTasks(w http.ResponseWriter, r *http.Request) {
 
 	response := make([]TaskResponse, len(tasks))
 	for i, task := range tasks {
-		response[i] = ResponseFromEntity(task)
+		response[i] = TaskDTOFromEntity(task)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -159,7 +159,7 @@ func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := ResponseFromEntity(task)
+	response := TaskDTOFromEntity(task)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)

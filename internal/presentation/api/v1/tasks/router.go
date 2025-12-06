@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"crud/internal/application"
 	tasks_usecases "crud/internal/application/tasks/usecases"
 
 	"github.com/go-chi/chi/v5"
@@ -10,38 +11,28 @@ import (
 // SetupRoutes настраивает маршруты для задач
 func SetupRoutes(r chi.Router, container *dig.Container) error {
 	// Получаем use cases из контейнера
-	var createTaskUseCase *tasks_usecases.CreateTaskUseCase
-	if err := container.Invoke(func(uc *tasks_usecases.CreateTaskUseCase) {
-		createTaskUseCase = uc
-	}); err != nil {
+	createTaskUseCase, err := application.ResolveFromContainer[*tasks_usecases.CreateTaskUseCase](container)
+	if err != nil {
 		return err
 	}
 
-	var getTaskByIDUseCase *tasks_usecases.GetTaskByIDUseCase
-	if err := container.Invoke(func(uc *tasks_usecases.GetTaskByIDUseCase) {
-		getTaskByIDUseCase = uc
-	}); err != nil {
+	getTaskByIDUseCase, err := application.ResolveFromContainer[*tasks_usecases.GetTaskByIDUseCase](container)
+	if err != nil {
 		return err
 	}
 
-	var listTasksUseCase *tasks_usecases.ListTasksUseCase
-	if err := container.Invoke(func(uc *tasks_usecases.ListTasksUseCase) {
-		listTasksUseCase = uc
-	}); err != nil {
+	listTasksUseCase, err := application.ResolveFromContainer[*tasks_usecases.ListTasksUseCase](container)
+	if err != nil {
 		return err
 	}
 
-	var updateTaskUseCase *tasks_usecases.UpdateTaskUseCase
-	if err := container.Invoke(func(uc *tasks_usecases.UpdateTaskUseCase) {
-		updateTaskUseCase = uc
-	}); err != nil {
+	updateTaskUseCase, err := application.ResolveFromContainer[*tasks_usecases.UpdateTaskUseCase](container)
+	if err != nil {
 		return err
 	}
 
-	var deleteTaskUseCase *tasks_usecases.DeleteTaskUseCase
-	if err := container.Invoke(func(uc *tasks_usecases.DeleteTaskUseCase) {
-		deleteTaskUseCase = uc
-	}); err != nil {
+	deleteTaskUseCase, err := application.ResolveFromContainer[*tasks_usecases.DeleteTaskUseCase](container)
+	if err != nil {
 		return err
 	}
 

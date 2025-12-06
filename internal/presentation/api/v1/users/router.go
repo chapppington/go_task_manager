@@ -1,6 +1,7 @@
 package users
 
 import (
+	"crud/internal/application"
 	users_usecases "crud/internal/application/users/usecases"
 
 	"github.com/go-chi/chi/v5"
@@ -10,45 +11,33 @@ import (
 // SetupRoutes настраивает маршруты для пользователей
 func SetupRoutes(r chi.Router, container *dig.Container) error {
 	// Получаем use cases из контейнера
-	var createUserUseCase *users_usecases.CreateUserUseCase
-	if err := container.Invoke(func(uc *users_usecases.CreateUserUseCase) {
-		createUserUseCase = uc
-	}); err != nil {
+	createUserUseCase, err := application.ResolveFromContainer[*users_usecases.CreateUserUseCase](container)
+	if err != nil {
 		return err
 	}
 
-	var getUserByIDUseCase *users_usecases.GetUserByIDUseCase
-	if err := container.Invoke(func(uc *users_usecases.GetUserByIDUseCase) {
-		getUserByIDUseCase = uc
-	}); err != nil {
+	getUserByIDUseCase, err := application.ResolveFromContainer[*users_usecases.GetUserByIDUseCase](container)
+	if err != nil {
 		return err
 	}
 
-	var getUserByEmailUseCase *users_usecases.GetUserByEmailUseCase
-	if err := container.Invoke(func(uc *users_usecases.GetUserByEmailUseCase) {
-		getUserByEmailUseCase = uc
-	}); err != nil {
+	getUserByEmailUseCase, err := application.ResolveFromContainer[*users_usecases.GetUserByEmailUseCase](container)
+	if err != nil {
 		return err
 	}
 
-	var listUsersUseCase *users_usecases.ListUsersUseCase
-	if err := container.Invoke(func(uc *users_usecases.ListUsersUseCase) {
-		listUsersUseCase = uc
-	}); err != nil {
+	listUsersUseCase, err := application.ResolveFromContainer[*users_usecases.ListUsersUseCase](container)
+	if err != nil {
 		return err
 	}
 
-	var updateUserUseCase *users_usecases.UpdateUserUseCase
-	if err := container.Invoke(func(uc *users_usecases.UpdateUserUseCase) {
-		updateUserUseCase = uc
-	}); err != nil {
+	updateUserUseCase, err := application.ResolveFromContainer[*users_usecases.UpdateUserUseCase](container)
+	if err != nil {
 		return err
 	}
 
-	var deleteUserUseCase *users_usecases.DeleteUserUseCase
-	if err := container.Invoke(func(uc *users_usecases.DeleteUserUseCase) {
-		deleteUserUseCase = uc
-	}); err != nil {
+	deleteUserUseCase, err := application.ResolveFromContainer[*users_usecases.DeleteUserUseCase](container)
+	if err != nil {
 		return err
 	}
 
