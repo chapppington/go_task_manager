@@ -30,11 +30,6 @@ func (n UserNameValueObject) Value() string {
 	return n.value
 }
 
-// String реализует интерфейс fmt.Stringer
-func (n UserNameValueObject) String() string {
-	return n.value
-}
-
 // Equals проверяет равенство двух имен
 func (n UserNameValueObject) Equals(other UserNameValueObject) bool {
 	return n.value == other.value

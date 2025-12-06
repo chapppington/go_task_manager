@@ -32,11 +32,6 @@ func (e EmailValueObject) Value() string {
 	return e.value
 }
 
-// String реализует интерфейс fmt.Stringer
-func (e EmailValueObject) String() string {
-	return e.value
-}
-
 // Equals проверяет равенство двух email
 func (e EmailValueObject) Equals(other EmailValueObject) bool {
 	return e.value == other.value

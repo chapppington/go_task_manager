@@ -30,11 +30,6 @@ func (t TaskTitleValueObject) Value() string {
 	return t.value
 }
 
-// String реализует интерфейс fmt.Stringer
-func (t TaskTitleValueObject) String() string {
-	return t.value
-}
-
 // Equals проверяет равенство двух заголовков
 func (t TaskTitleValueObject) Equals(other TaskTitleValueObject) bool {
 	return t.value == other.value
