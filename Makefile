@@ -6,6 +6,9 @@ ENV = --env-file .env
 EXEC = docker exec -it
 APP_FILE = docker_compose/app.yaml
 APP_CONTAINER = main-app
+# Add Go bin directory to PATH (for go imports command)
+PATH := $(HOME)/go/bin:$(PATH)
+export PATH
 
 .PHONY: all
 all:
@@ -39,7 +42,7 @@ storages-down:
 storages-logs:
 	${LOGS} ${STORAGES_CONTAINER} -f
 
-.PHONY: postgres 
+.PHONY: postgres
 postgres:
 	${EXEC} ${STORAGES_CONTAINER} psql -U postgres
 
@@ -51,3 +54,10 @@ build:
 run:
 	go run ./cmd/main.go
 
+.PHONY: test
+test:
+	go test ./tests/... -v
+
+.PHONY: precommit
+precommit:
+	pre-commit run --all-files

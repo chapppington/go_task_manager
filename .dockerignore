@@ -6,5 +6,3 @@ bin/
 docker_compose/
 Makefile
 *.log
-
-

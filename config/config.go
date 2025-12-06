@@ -22,12 +22,12 @@ func LoadFromEnv() *Config {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		APIPort:            getEnvAsInt("API_PORT", 8000),
-		PostgresDB:          getEnv("POSTGRES_DB", "url_shortener"),
-		PostgresUser:        getEnv("POSTGRES_USER", "postgres"),
-		PostgresPassword:    getEnv("POSTGRES_PASSWORD", "postgres"),
-		PostgresHost:        getEnv("POSTGRES_HOST", "postgres"),
-		PostgresPort:        getEnvAsInt("POSTGRES_PORT", 5432),
+		APIPort:          getEnvAsInt("API_PORT", 8000),
+		PostgresDB:       getEnv("POSTGRES_DB", "url_shortener"),
+		PostgresUser:     getEnv("POSTGRES_USER", "postgres"),
+		PostgresPassword: getEnv("POSTGRES_PASSWORD", "postgres"),
+		PostgresHost:     getEnv("POSTGRES_HOST", "postgres"),
+		PostgresPort:     getEnvAsInt("POSTGRES_PORT", 5432),
 	}
 
 	return cfg
@@ -52,4 +52,3 @@ func getEnvAsInt(key string, defaultValue int) int {
 	}
 	return value
 }
-
