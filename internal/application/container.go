@@ -62,20 +62,6 @@ func initContainer(c *dig.Container) {
 	c.Provide(tasks_usecases.NewDeleteTaskUseCase)
 }
 
-// GetContainer возвращает инициализированный контейнер
-func GetContainer() *dig.Container {
-	return InitContainer()
-}
-
-// Resolve получает зависимость из контейнера по типу
-func Resolve[T any]() (T, error) {
-	var result T
-	err := GetContainer().Invoke(func(dep T) {
-		result = dep
-	})
-	return result, err
-}
-
 // ResolveFromContainer получает зависимость из переданного контейнера по типу
 func ResolveFromContainer[T any](container *dig.Container) (T, error) {
 	var result T
