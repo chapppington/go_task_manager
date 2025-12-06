@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// Repository определяет интерфейс для работы с задачами
-type Repository interface {
+// BaseTasksRepository определяет интерфейс для работы с задачами
+type BaseTasksRepository interface {
 	// Create создает новую задачу
 	Create(ctx context.Context, task *Task) (*Task, error)
 

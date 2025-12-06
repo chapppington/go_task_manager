@@ -56,7 +56,7 @@ run:
 
 .PHONY: test
 test:
-	go test ./tests/... -v
+	go test ./tests/...
 
 .PHONY: precommit
 precommit:
