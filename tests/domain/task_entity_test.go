@@ -5,6 +5,8 @@ import (
 
 	"crud/internal/domain/tasks"
 	vo "crud/internal/domain/tasks/value_objects"
+
+	"github.com/google/uuid"
 )
 
 func TestTaskEntity_Creation(t *testing.T) {
@@ -18,7 +20,8 @@ func TestTaskEntity_Creation(t *testing.T) {
 		t.Fatalf("Failed to create status: %v", err)
 	}
 
-	task := tasks.NewTask(1, title, "Study gRPC basics", status)
+	userID := uuid.New()
+	task := tasks.NewTask(userID, title, "Study gRPC basics", status)
 
 	if task.Title.Value() != "Learn gRPC" {
 		t.Errorf("Expected title 'Learn gRPC', got '%s'", task.Title.Value())
@@ -32,12 +35,12 @@ func TestTaskEntity_Creation(t *testing.T) {
 		t.Errorf("Expected status 'todo', got '%s'", task.Status.Value())
 	}
 
-	if task.UserID != 1 {
-		t.Errorf("Expected UserID 1, got %d", task.UserID)
+	if task.UserID != userID {
+		t.Errorf("Expected UserID %s, got %s", userID, task.UserID)
 	}
 
-	if task.OID == (tasks.Task{}.OID) {
-		t.Error("Expected OID to be set")
+	if task.ID == (tasks.Task{}.ID) {
+		t.Error("Expected ID to be set")
 	}
 
 	if task.CreatedAt.IsZero() {
@@ -55,46 +58,24 @@ func TestTaskEntity_Equality(t *testing.T) {
 	title3, _ := vo.NewTaskTitleValueObject("Master Go")
 
 	status, _ := vo.NewTaskStatusValueObject("todo")
+	userID := uuid.New()
 
-	// Создаем задачи с одинаковым OID
-	task1 := tasks.NewTask(1, title1, "Description 1", status)
-	task2 := tasks.NewTask(1, title2, "Description 2", status)
-	task2.OID = task1.OID // Устанавливаем одинаковый OID
+	// Создаем задачи с одинаковым ID
+	task1 := tasks.NewTask(userID, title1, "Description 1", status)
+	task2 := tasks.NewTask(userID, title2, "Description 2", status)
+	task2.ID = task1.ID // Устанавливаем одинаковый ID
 
-	// Создаем задачу с другим OID
-	task3 := tasks.NewTask(1, title3, "Description 3", status)
+	// Создаем задачу с другим ID
+	task3 := tasks.NewTask(userID, title3, "Description 3", status)
 
-	// Задачи с одинаковым OID должны быть равны
+	// Задачи с одинаковым ID должны быть равны
 	if !task1.Equals(task2) {
-		t.Error("Expected task1 and task2 to be equal (same OID)")
+		t.Error("Expected task1 and task2 to be equal (same ID)")
 	}
 
-	// Задачи с разным OID не должны быть равны
+	// Задачи с разным ID не должны быть равны
 	if task1.Equals(task3) {
-		t.Error("Expected task1 and task3 to be different (different OID)")
-	}
-}
-
-func TestTaskEntity_Hash(t *testing.T) {
-	title1, _ := vo.NewTaskTitleValueObject("Learn gRPC")
-	title2, _ := vo.NewTaskTitleValueObject("Learn gRPC")
-	status, _ := vo.NewTaskStatusValueObject("todo")
-
-	task1 := tasks.NewTask(1, title1, "Description", status)
-	task2 := tasks.NewTask(1, title2, "Description", status)
-	task2.OID = task1.OID // Устанавливаем одинаковый OID
-
-	// Хеши должны быть одинаковыми для задач с одинаковым OID
-	hash1 := task1.Hash()
-	hash2 := task2.Hash()
-
-	if hash1 != hash2 {
-		t.Errorf("Expected hash1 (%s) == hash2 (%s) for tasks with same OID", hash1, hash2)
-	}
-
-	// Проверяем, что хеш не пустой
-	if hash1 == "" {
-		t.Error("Expected hash to be non-empty")
+		t.Error("Expected task1 and task3 to be different (different ID)")
 	}
 }
 

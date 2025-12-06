@@ -28,8 +28,8 @@ func TestUserEntity_Creation(t *testing.T) {
 		t.Errorf("Expected name 'Test User', got '%s'", user.Name.Value())
 	}
 
-	if user.OID == (users.User{}.OID) {
-		t.Error("Expected OID to be set")
+	if user.ID == (users.User{}.ID) {
+		t.Error("Expected ID to be set")
 	}
 
 	if user.CreatedAt.IsZero() {
@@ -48,45 +48,22 @@ func TestUserEntity_Equality(t *testing.T) {
 
 	name, _ := vo.NewUserNameValueObject("Test User")
 
-	// Создаем пользователей с одинаковым OID
+	// Создаем пользователей с одинаковым ID
 	user1 := users.NewUser(email1, name)
 	user2 := users.NewUser(email2, name)
-	user2.OID = user1.OID // Устанавливаем одинаковый OID
+	user2.ID = user1.ID // Устанавливаем одинаковый ID
 
-	// Создаем пользователя с другим OID
+	// Создаем пользователя с другим ID
 	user3 := users.NewUser(email3, name)
 
-	// Пользователи с одинаковым OID должны быть равны
+	// Пользователи с одинаковым ID должны быть равны
 	if !user1.Equals(user2) {
-		t.Error("Expected user1 and user2 to be equal (same OID)")
+		t.Error("Expected user1 and user2 to be equal (same ID)")
 	}
 
-	// Пользователи с разным OID не должны быть равны
+	// Пользователи с разным ID не должны быть равны
 	if user1.Equals(user3) {
-		t.Error("Expected user1 and user3 to be different (different OID)")
-	}
-}
-
-func TestUserEntity_Hash(t *testing.T) {
-	email1, _ := vo.NewEmailValueObject("test@example.com")
-	email2, _ := vo.NewEmailValueObject("test@example.com")
-	name, _ := vo.NewUserNameValueObject("Test User")
-
-	user1 := users.NewUser(email1, name)
-	user2 := users.NewUser(email2, name)
-	user2.OID = user1.OID // Устанавливаем одинаковый OID
-
-	// Хеши должны быть одинаковыми для пользователей с одинаковым OID
-	hash1 := user1.Hash()
-	hash2 := user2.Hash()
-
-	if hash1 != hash2 {
-		t.Errorf("Expected hash1 (%s) == hash2 (%s) for users with same OID", hash1, hash2)
-	}
-
-	// Проверяем, что хеш не пустой
-	if hash1 == "" {
-		t.Error("Expected hash to be non-empty")
+		t.Error("Expected user1 and user3 to be different (different ID)")
 	}
 }
 

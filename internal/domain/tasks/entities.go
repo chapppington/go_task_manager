@@ -10,9 +10,8 @@ import (
 
 // Task представляет сущность задачи
 type Task struct {
-	ID          int64
-	OID         uuid.UUID // Object ID для сравнения
-	UserID      int64
+	ID          uuid.UUID // Object ID для сравнения
+	UserID      uuid.UUID
 	Title       value_objects.TaskTitleValueObject
 	Description string
 	Status      value_objects.TaskStatusValueObject
@@ -22,14 +21,14 @@ type Task struct {
 
 // NewTask создает новую задачу
 func NewTask(
-	userID int64,
+	userID uuid.UUID,
 	title value_objects.TaskTitleValueObject,
 	description string,
 	status value_objects.TaskStatusValueObject,
 ) *Task {
 	now := time.Now()
 	return &Task{
-		OID:         uuid.New(),
+		ID:          uuid.New(),
 		UserID:      userID,
 		Title:       title,
 		Description: description,
@@ -39,15 +38,10 @@ func NewTask(
 	}
 }
 
-// Equals проверяет равенство двух задач по хешу
+// Equals проверяет равенство двух задач по ID
 func (t *Task) Equals(other *Task) bool {
 	if t == nil || other == nil {
 		return t == other
 	}
-	return t.Hash() == other.Hash()
-}
-
-// Hash возвращает хеш задачи (для использования в map)
-func (t *Task) Hash() string {
-	return t.OID.String()
+	return t.ID == other.ID
 }
