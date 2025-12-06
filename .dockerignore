@@ -1,0 +1,10 @@
+bin/
+*.md
+.git/
+.gitignore
+.env
+docker_compose/
+Makefile
+*.log
+
+

@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  main-app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: main-app
+    ports:
+      - "${API_PORT}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ../.env
+    volumes:
+      - ../:/app
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
