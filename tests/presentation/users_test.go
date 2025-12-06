@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"crud/internal/presentation/api/v1/dto"
+	v1_users "crud/internal/presentation/api/v1/users"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -18,7 +18,7 @@ func TestCreateUser(t *testing.T) {
 	router := NewTestRouterWithContainer()
 
 	// Подготавливаем запрос
-	reqBody := dto.CreateUserRequest{
+	reqBody := v1_users.CreateUserRequest{
 		Email: "test@example.com",
 		Name:  "Test User",
 	}
@@ -36,7 +36,7 @@ func TestCreateUser(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, rr.Code)
 
 	// Проверяем ответ
-	var response dto.UserResponse
+	var response v1_users.UserResponse
 	err = json.NewDecoder(rr.Body).Decode(&response)
 	require.NoError(t, err)
 
@@ -52,7 +52,7 @@ func TestGetUserByID(t *testing.T) {
 	router := NewTestRouterWithContainer()
 
 	// Сначала создаем пользователя
-	createReqBody := dto.CreateUserRequest{
+	createReqBody := v1_users.CreateUserRequest{
 		Email: "get@example.com",
 		Name:  "Get User",
 	}
@@ -66,7 +66,7 @@ func TestGetUserByID(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, createRR.Code)
 
-	var createResponse dto.UserResponse
+	var createResponse v1_users.UserResponse
 	err = json.NewDecoder(createRR.Body).Decode(&createResponse)
 	require.NoError(t, err)
 	require.NotEmpty(t, createResponse.ID)
@@ -81,7 +81,7 @@ func TestGetUserByID(t *testing.T) {
 	assert.Equal(t, http.StatusOK, getRR.Code)
 
 	// Проверяем ответ
-	var getResponse dto.UserResponse
+	var getResponse v1_users.UserResponse
 	err = json.NewDecoder(getRR.Body).Decode(&getResponse)
 	require.NoError(t, err)
 
