@@ -28,11 +28,11 @@ func TestGetUserByID(t *testing.T) {
 	createResponse := CreateUserViaHTTP(t, router, "get@example.com", "Get User")
 
 	// Получаем пользователя по ID
-	getRR := ExecuteRequest(router, http.MethodGet, "/api/v1/users/"+createResponse.ID, nil)
-	assert.Equal(t, http.StatusOK, getRR.Code)
+	response := ExecuteRequest(router, http.MethodGet, "/api/v1/users/"+createResponse.ID, nil)
+	assert.Equal(t, http.StatusOK, response.Code)
 
 	var getResponse v1_users.UserResponse
-	DecodeJSONResponse(t, getRR, &getResponse)
+	DecodeJSONResponse(t, response, &getResponse)
 
 	assert.Equal(t, createResponse.ID, getResponse.ID)
 	assert.Equal(t, createResponse.Email, getResponse.Email)
@@ -46,11 +46,11 @@ func TestGetUserByEmail(t *testing.T) {
 	createResponse := CreateUserViaHTTP(t, router, "email@example.com", "Email User")
 
 	// Получаем пользователя по email
-	getRR := ExecuteRequest(router, http.MethodGet, "/api/v1/users/email/"+createResponse.Email, nil)
-	assert.Equal(t, http.StatusOK, getRR.Code)
+	response := ExecuteRequest(router, http.MethodGet, "/api/v1/users/email/"+createResponse.Email, nil)
+	assert.Equal(t, http.StatusOK, response.Code)
 
 	var getResponse v1_users.UserResponse
-	DecodeJSONResponse(t, getRR, &getResponse)
+	DecodeJSONResponse(t, response, &getResponse)
 
 	assert.Equal(t, createResponse.ID, getResponse.ID)
 	assert.Equal(t, createResponse.Email, getResponse.Email)
@@ -70,10 +70,10 @@ func TestListUsers(t *testing.T) {
 	}
 
 	// Получаем список пользователей
-	listRR := ExecuteRequest(router, http.MethodGet, "/api/v1/users", nil)
-	assert.Equal(t, http.StatusOK, listRR.Code)
+	response := ExecuteRequest(router, http.MethodGet, "/api/v1/users", nil)
+	assert.Equal(t, http.StatusOK, response.Code)
 
-	data, total := DecodeJSONListResponse(t, listRR)
+	data, total := DecodeJSONListResponse(t, response)
 	assert.GreaterOrEqual(t, len(data), len(createdUsers))
 	assert.GreaterOrEqual(t, int(total), len(createdUsers))
 }
@@ -90,11 +90,11 @@ func TestUpdateUser(t *testing.T) {
 		Name: &updatedName,
 	}
 
-	updateRR := ExecuteRequest(router, http.MethodPut, "/api/v1/users/"+createResponse.ID, updateReqBody)
-	assert.Equal(t, http.StatusOK, updateRR.Code)
+	response := ExecuteRequest(router, http.MethodPut, "/api/v1/users/"+createResponse.ID, updateReqBody)
+	assert.Equal(t, http.StatusOK, response.Code)
 
 	var updateResponse v1_users.UserResponse
-	DecodeJSONResponse(t, updateRR, &updateResponse)
+	DecodeJSONResponse(t, response, &updateResponse)
 
 	assert.Equal(t, createResponse.ID, updateResponse.ID)
 	assert.Equal(t, createResponse.Email, updateResponse.Email)
@@ -108,10 +108,10 @@ func TestDeleteUser(t *testing.T) {
 	createResponse := CreateUserViaHTTP(t, router, "delete@example.com", "Delete User")
 
 	// Удаляем пользователя
-	deleteRR := ExecuteRequest(router, http.MethodDelete, "/api/v1/users/"+createResponse.ID, nil)
-	assert.Equal(t, http.StatusNoContent, deleteRR.Code)
+	response := ExecuteRequest(router, http.MethodDelete, "/api/v1/users/"+createResponse.ID, nil)
+	assert.Equal(t, http.StatusNoContent, response.Code)
 
 	// Проверяем, что пользователь действительно удален
-	getRR := ExecuteRequest(router, http.MethodGet, "/api/v1/users/"+createResponse.ID, nil)
-	assert.Equal(t, http.StatusNotFound, getRR.Code)
+	response = ExecuteRequest(router, http.MethodGet, "/api/v1/users/"+createResponse.ID, nil)
+	assert.Equal(t, http.StatusNotFound, response.Code)
 }

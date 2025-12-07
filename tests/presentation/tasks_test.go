@@ -35,11 +35,11 @@ func TestGetTaskByID(t *testing.T) {
 	createTaskResponse := CreateTaskViaHTTP(t, router, userResponse.ID, "Get Task", "Get Task Description", "in_progress")
 
 	// Получаем задачу по ID
-	getRR := ExecuteRequest(router, http.MethodGet, "/api/v1/tasks/"+createTaskResponse.ID, nil)
-	assert.Equal(t, http.StatusOK, getRR.Code)
+	response := ExecuteRequest(router, http.MethodGet, "/api/v1/tasks/"+createTaskResponse.ID, nil)
+	assert.Equal(t, http.StatusOK, response.Code)
 
 	var getResponse v1_tasks.TaskResponse
-	DecodeJSONResponse(t, getRR, &getResponse)
+	DecodeJSONResponse(t, response, &getResponse)
 
 	assert.Equal(t, createTaskResponse.ID, getResponse.ID)
 	assert.Equal(t, createTaskResponse.Title, getResponse.Title)
@@ -67,10 +67,10 @@ func TestListTasks(t *testing.T) {
 	}
 
 	// Получаем список задач
-	listRR := ExecuteRequest(router, http.MethodGet, "/api/v1/tasks", nil)
-	assert.Equal(t, http.StatusOK, listRR.Code)
+	response := ExecuteRequest(router, http.MethodGet, "/api/v1/tasks", nil)
+	assert.Equal(t, http.StatusOK, response.Code)
 
-	data, total := DecodeJSONListResponse(t, listRR)
+	data, total := DecodeJSONListResponse(t, response)
 	assert.GreaterOrEqual(t, len(data), len(tasks))
 	assert.GreaterOrEqual(t, int(total), len(tasks))
 }
@@ -86,8 +86,8 @@ func TestListTasksWithFilters(t *testing.T) {
 	CreateTaskViaHTTP(t, router, userResponse.ID, "Done Task", "Description", "done")
 
 	// Получаем список задач с фильтром по статусу
-	listRR := ExecuteRequest(router, http.MethodGet, "/api/v1/tasks?status=todo&user_id="+userResponse.ID, nil)
-	assert.Equal(t, http.StatusOK, listRR.Code)
+	response := ExecuteRequest(router, http.MethodGet, "/api/v1/tasks?status=todo&user_id="+userResponse.ID, nil)
+	assert.Equal(t, http.StatusOK, response.Code)
 }
 
 func TestUpdateTask(t *testing.T) {
@@ -107,11 +107,11 @@ func TestUpdateTask(t *testing.T) {
 		Status:      &updatedStatus,
 	}
 
-	updateRR := ExecuteRequest(router, http.MethodPut, "/api/v1/tasks/"+createTaskResponse.ID, updateReqBody)
-	assert.Equal(t, http.StatusOK, updateRR.Code)
+	response := ExecuteRequest(router, http.MethodPut, "/api/v1/tasks/"+createTaskResponse.ID, updateReqBody)
+	assert.Equal(t, http.StatusOK, response.Code)
 
 	var updateResponse v1_tasks.TaskResponse
-	DecodeJSONResponse(t, updateRR, &updateResponse)
+	DecodeJSONResponse(t, response, &updateResponse)
 
 	assert.Equal(t, createTaskResponse.ID, updateResponse.ID)
 	assert.Equal(t, "Updated Task Title", updateResponse.Title)
@@ -127,10 +127,10 @@ func TestDeleteTask(t *testing.T) {
 	createTaskResponse := CreateTaskViaHTTP(t, router, userResponse.ID, "Delete Task", "Delete Description", "todo")
 
 	// Удаляем задачу
-	deleteRR := ExecuteRequest(router, http.MethodDelete, "/api/v1/tasks/"+createTaskResponse.ID, nil)
-	assert.Equal(t, http.StatusNoContent, deleteRR.Code)
+	response := ExecuteRequest(router, http.MethodDelete, "/api/v1/tasks/"+createTaskResponse.ID, nil)
+	assert.Equal(t, http.StatusNoContent, response.Code)
 
 	// Проверяем, что задача действительно удалена
-	getRR := ExecuteRequest(router, http.MethodGet, "/api/v1/tasks/"+createTaskResponse.ID, nil)
-	assert.Equal(t, http.StatusNotFound, getRR.Code)
+	response = ExecuteRequest(router, http.MethodGet, "/api/v1/tasks/"+createTaskResponse.ID, nil)
+	assert.Equal(t, http.StatusNotFound, response.Code)
 }

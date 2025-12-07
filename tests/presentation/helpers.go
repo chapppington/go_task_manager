@@ -25,14 +25,14 @@ func CreateUserViaHTTP(t *testing.T, router chi.Router, email, name string) *v1_
 
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/users", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
-	rr := httptest.NewRecorder()
+	responseRecorder := httptest.NewRecorder()
 
-	router.ServeHTTP(rr, req)
+	router.ServeHTTP(responseRecorder, req)
 
-	require.Equal(t, http.StatusCreated, rr.Code)
+	require.Equal(t, http.StatusCreated, responseRecorder.Code)
 
 	var response v1_users.UserResponse
-	err = json.NewDecoder(rr.Body).Decode(&response)
+	err = json.NewDecoder(responseRecorder.Body).Decode(&response)
 	require.NoError(t, err)
 	require.NotEmpty(t, response.ID)
 
@@ -52,14 +52,14 @@ func CreateTaskViaHTTP(t *testing.T, router chi.Router, userID, title, descripti
 
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/tasks", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
-	rr := httptest.NewRecorder()
+	responseRecorder := httptest.NewRecorder()
 
-	router.ServeHTTP(rr, req)
+	router.ServeHTTP(responseRecorder, req)
 
-	require.Equal(t, http.StatusCreated, rr.Code)
+	require.Equal(t, http.StatusCreated, responseRecorder.Code)
 
 	var response v1_tasks.TaskResponse
-	err = json.NewDecoder(rr.Body).Decode(&response)
+	err = json.NewDecoder(responseRecorder.Body).Decode(&response)
 	require.NoError(t, err)
 	require.NotEmpty(t, response.ID)
 
@@ -86,22 +86,22 @@ func ExecuteRequest(router chi.Router, method, path string, body interface{}) *h
 		req = httptest.NewRequest(method, path, nil)
 	}
 
-	rr := httptest.NewRecorder()
-	router.ServeHTTP(rr, req)
+	responseRecorder := httptest.NewRecorder()
+	router.ServeHTTP(responseRecorder, req)
 
-	return rr
+	return responseRecorder
 }
 
 // DecodeJSONResponse декодирует JSON ответ в указанную структуру
-func DecodeJSONResponse(t *testing.T, rr *httptest.ResponseRecorder, target interface{}) {
-	err := json.NewDecoder(rr.Body).Decode(target)
+func DecodeJSONResponse(t *testing.T, response *httptest.ResponseRecorder, target interface{}) {
+	err := json.NewDecoder(response.Body).Decode(target)
 	require.NoError(t, err)
 }
 
 // DecodeJSONListResponse декодирует JSON ответ со списком (с полями data и total)
-func DecodeJSONListResponse(t *testing.T, rr *httptest.ResponseRecorder) ([]interface{}, int64) {
+func DecodeJSONListResponse(t *testing.T, response *httptest.ResponseRecorder) ([]interface{}, int64) {
 	var listResponse map[string]interface{}
-	err := json.NewDecoder(rr.Body).Decode(&listResponse)
+	err := json.NewDecoder(response.Body).Decode(&listResponse)
 	require.NoError(t, err)
 
 	data, ok := listResponse["data"].([]interface{})
