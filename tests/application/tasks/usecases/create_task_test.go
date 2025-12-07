@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	tasks "crud/internal/application/tasks/usecases"
+	vo "crud/internal/domain/tasks/value_objects"
 	"crud/tests"
 
 	"github.com/google/uuid"
@@ -40,14 +41,14 @@ func TestCreateTaskUseCase_Execute(t *testing.T) {
 
 	t.Run("invalid title", func(t *testing.T) {
 		task, err := useCase.Execute(ctx, userID, "", "Test Description", "todo")
-		assert.Error(t, err)
 		assert.Nil(t, task)
+		assert.True(t, vo.IsInvalidTitle(err))
 	})
 
 	t.Run("invalid status", func(t *testing.T) {
 		task, err := useCase.Execute(ctx, userID, "Test Task", "Test Description", "invalid_status")
-		assert.Error(t, err)
 		assert.Nil(t, task)
+		assert.True(t, vo.IsInvalidStatus(err))
 	})
 
 	t.Run("valid statuses", func(t *testing.T) {

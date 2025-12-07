@@ -1,7 +1,6 @@
 package value_objects
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -19,10 +18,10 @@ type EmailValueObject struct {
 func NewEmailValueObject(email string) (EmailValueObject, error) {
 	email = strings.TrimSpace(email)
 	if email == "" {
-		return EmailValueObject{}, fmt.Errorf("email cannot be empty")
+		return EmailValueObject{}, &InvalidEmailError{Message: "email cannot be empty"}
 	}
 	if !emailRegex.MatchString(email) {
-		return EmailValueObject{}, fmt.Errorf("invalid email format: %s", email)
+		return EmailValueObject{}, &InvalidEmailError{Value: email, Message: "invalid email format"}
 	}
 	return EmailValueObject{value: strings.ToLower(email)}, nil
 }

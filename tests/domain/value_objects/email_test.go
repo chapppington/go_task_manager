@@ -17,11 +17,11 @@ func TestEmailValueObject(t *testing.T) {
 
 	// Тест пустого email
 	_, err = vo.NewEmailValueObject("")
-	assert.Error(t, err, "Expected error for empty email")
+	assert.True(t, vo.IsInvalidEmail(err))
 
 	// Тест невалидного email
 	_, err = vo.NewEmailValueObject("invalid-email")
-	assert.Error(t, err, "Expected error for invalid email")
+	assert.True(t, vo.IsInvalidEmail(err))
 
 	// Тест сравнения email
 	email1, _ := vo.NewEmailValueObject("test@example.com")

@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	tasks "crud/internal/application/tasks/usecases"
+	tasks_domain "crud/internal/domain/tasks"
+	vo "crud/internal/domain/tasks/value_objects"
 	"crud/tests"
 
 	"github.com/google/uuid"
@@ -92,7 +94,7 @@ func TestUpdateTaskUseCase_Execute(t *testing.T) {
 
 		invalidTitle := ""
 		_, err = updateUseCase.Execute(ctx, task.ID, &invalidTitle, nil, nil)
-		assert.Error(t, err)
+		assert.True(t, vo.IsInvalidTitle(err))
 	})
 
 	t.Run("invalid status", func(t *testing.T) {
@@ -101,14 +103,13 @@ func TestUpdateTaskUseCase_Execute(t *testing.T) {
 
 		invalidStatus := "invalid_status"
 		_, err = updateUseCase.Execute(ctx, task.ID, nil, nil, &invalidStatus)
-		assert.Error(t, err)
+		assert.True(t, vo.IsInvalidStatus(err))
 	})
 
 	t.Run("task not found", func(t *testing.T) {
 		nonExistentID := uuid.New()
 		newTitle := "New Title"
 		_, err := updateUseCase.Execute(ctx, nonExistentID, &newTitle, nil, nil)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "not found")
+		assert.True(t, tasks_domain.IsTaskNotFound(err))
 	})
 }

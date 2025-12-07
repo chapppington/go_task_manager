@@ -21,11 +21,11 @@ func TestTaskStatusValueObject(t *testing.T) {
 
 	// Тест пустого статуса
 	_, err := vo.NewTaskStatusValueObject("")
-	assert.Error(t, err, "Expected error for empty status")
+	assert.True(t, vo.IsInvalidStatus(err))
 
 	// Тест невалидного статуса
 	_, err = vo.NewTaskStatusValueObject("invalid_status")
-	assert.Error(t, err, "Expected error for invalid status")
+	assert.True(t, vo.IsInvalidStatus(err))
 
 	// Тест сравнения статусов
 	status1, _ := vo.NewTaskStatusValueObject("todo")

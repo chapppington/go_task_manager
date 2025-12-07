@@ -1,7 +1,6 @@
 package value_objects
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -14,13 +13,13 @@ type UserNameValueObject struct {
 func NewUserNameValueObject(name string) (UserNameValueObject, error) {
 	name = strings.TrimSpace(name)
 	if name == "" {
-		return UserNameValueObject{}, fmt.Errorf("name cannot be empty")
+		return UserNameValueObject{}, &InvalidNameError{Message: "name cannot be empty"}
 	}
 	if len(name) < 2 {
-		return UserNameValueObject{}, fmt.Errorf("name must be at least 2 characters long")
+		return UserNameValueObject{}, &InvalidNameError{Value: name, Message: "name must be at least 2 characters long"}
 	}
 	if len(name) > 100 {
-		return UserNameValueObject{}, fmt.Errorf("name must be at most 100 characters long")
+		return UserNameValueObject{}, &InvalidNameError{Value: name, Message: "name must be at most 100 characters long"}
 	}
 	return UserNameValueObject{value: name}, nil
 }

@@ -2,7 +2,6 @@ package dummy
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"crud/internal/domain/users"
@@ -29,13 +28,13 @@ func (r *UsersRepository) Create(ctx context.Context, user *users.User) (*users.
 	defer r.mu.Unlock()
 
 	if user == nil {
-		return nil, fmt.Errorf("user cannot be nil")
+		return nil, &users.InvalidUserDataError{Field: "user", Message: "user cannot be nil"}
 	}
 
 	email := user.Email.Value()
 	for _, u := range r.users {
 		if u.Email.Value() == email {
-			return nil, fmt.Errorf("user with email %s already exists", email)
+			return nil, &users.UserAlreadyExistsError{Email: email}
 		}
 	}
 
@@ -54,7 +53,7 @@ func (r *UsersRepository) GetByID(ctx context.Context, id uuid.UUID) (*users.Use
 		}
 	}
 
-	return nil, fmt.Errorf("user not found: %s", id)
+	return nil, &users.UserNotFoundError{UserID: id}
 }
 
 // GetByEmail возвращает пользователя по email
@@ -68,7 +67,7 @@ func (r *UsersRepository) GetByEmail(ctx context.Context, email string) (*users.
 		}
 	}
 
-	return nil, fmt.Errorf("user with email %s not found", email)
+	return nil, &users.UserNotFoundError{Email: email}
 }
 
 // List возвращает список пользователей с пагинацией
@@ -101,7 +100,7 @@ func (r *UsersRepository) Update(ctx context.Context, user *users.User) (*users.
 	defer r.mu.Unlock()
 
 	if user == nil {
-		return nil, fmt.Errorf("user cannot be nil")
+		return nil, &users.InvalidUserDataError{Field: "user", Message: "user cannot be nil"}
 	}
 
 	for i, u := range r.users {
@@ -111,7 +110,7 @@ func (r *UsersRepository) Update(ctx context.Context, user *users.User) (*users.
 		}
 	}
 
-	return nil, fmt.Errorf("user not found: %s", user.ID)
+	return nil, &users.UserNotFoundError{UserID: user.ID}
 }
 
 // Delete удаляет пользователя по ID
@@ -126,5 +125,5 @@ func (r *UsersRepository) Delete(ctx context.Context, id uuid.UUID) error {
 		}
 	}
 
-	return fmt.Errorf("user not found: %s", id)
+	return &users.UserNotFoundError{UserID: id}
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	users "crud/internal/application/users/usecases"
+	users_domain "crud/internal/domain/users"
 	"crud/tests"
 
 	"github.com/google/uuid"
@@ -36,14 +37,12 @@ func TestDeleteUserUseCase_Execute(t *testing.T) {
 
 		// Проверяем, что пользователь удален
 		_, err = getUseCase.Execute(ctx, user.ID)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "not found")
+		assert.True(t, users_domain.IsUserNotFound(err))
 	})
 
 	t.Run("user not found", func(t *testing.T) {
 		nonExistentID := uuid.New()
 		err := deleteUseCase.Execute(ctx, nonExistentID)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "not found")
+		assert.True(t, users_domain.IsUserNotFound(err))
 	})
 }

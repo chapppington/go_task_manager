@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	tasks "crud/internal/application/tasks/usecases"
+	tasks_domain "crud/internal/domain/tasks"
 	"crud/tests"
 
 	"github.com/google/uuid"
@@ -47,8 +48,7 @@ func TestGetTaskByIDUseCase_Execute(t *testing.T) {
 	t.Run("task not found", func(t *testing.T) {
 		nonExistentID := uuid.New()
 		task, err := getUseCase.Execute(ctx, nonExistentID)
-		assert.Error(t, err)
 		assert.Nil(t, task)
-		assert.Contains(t, err.Error(), "not found")
+		assert.True(t, tasks_domain.IsTaskNotFound(err))
 	})
 }

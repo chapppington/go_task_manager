@@ -1,7 +1,6 @@
 package value_objects
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 )
@@ -21,10 +20,10 @@ type TaskStatusValueObject struct {
 func NewTaskStatusValueObject(status string) (TaskStatusValueObject, error) {
 	status = strings.TrimSpace(status)
 	if status == "" {
-		return TaskStatusValueObject{}, fmt.Errorf("status cannot be empty")
+		return TaskStatusValueObject{}, &InvalidStatusError{Message: "status cannot be empty"}
 	}
 	if !slices.Contains(validStatuses, status) {
-		return TaskStatusValueObject{}, fmt.Errorf("invalid status: %s. Valid statuses: %s", status, strings.Join(validStatuses, ", "))
+		return TaskStatusValueObject{}, &InvalidStatusError{Value: status, ValidValues: validStatuses}
 	}
 	return TaskStatusValueObject{value: status}, nil
 }

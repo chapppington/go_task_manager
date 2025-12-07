@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	users "crud/internal/application/users/usecases"
+	users_domain "crud/internal/domain/users"
+	vo "crud/internal/domain/users/value_objects"
 	"crud/tests"
 
 	"github.com/google/uuid"
@@ -73,7 +75,7 @@ func TestUpdateUserUseCase_Execute(t *testing.T) {
 
 		invalidEmail := "invalid-email"
 		_, err = updateUseCase.Execute(ctx, user.ID, &invalidEmail, nil)
-		assert.Error(t, err)
+		assert.True(t, vo.IsInvalidEmail(err))
 	})
 
 	t.Run("invalid name", func(t *testing.T) {
@@ -82,14 +84,13 @@ func TestUpdateUserUseCase_Execute(t *testing.T) {
 
 		invalidName := ""
 		_, err = updateUseCase.Execute(ctx, user.ID, nil, &invalidName)
-		assert.Error(t, err)
+		assert.True(t, vo.IsInvalidName(err))
 	})
 
 	t.Run("user not found", func(t *testing.T) {
 		nonExistentID := uuid.New()
 		newEmail := "new@example.com"
 		_, err := updateUseCase.Execute(ctx, nonExistentID, &newEmail, nil)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "not found")
+		assert.True(t, users_domain.IsUserNotFound(err))
 	})
 }

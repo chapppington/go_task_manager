@@ -17,7 +17,7 @@ func TestTaskTitleValueObject(t *testing.T) {
 
 	// Тест пустого заголовка
 	_, err = vo.NewTaskTitleValueObject("")
-	assert.Error(t, err, "Expected error for empty title")
+	assert.True(t, vo.IsInvalidTitle(err))
 
 	// Тест слишком длинного заголовка
 	longTitle := make([]byte, 201)
@@ -25,7 +25,7 @@ func TestTaskTitleValueObject(t *testing.T) {
 		longTitle[i] = 'A'
 	}
 	_, err = vo.NewTaskTitleValueObject(string(longTitle))
-	assert.Error(t, err, "Expected error for title longer than 200 characters")
+	assert.True(t, vo.IsInvalidTitle(err))
 
 	// Тест сравнения заголовков
 	title1, _ := vo.NewTaskTitleValueObject("Learn gRPC")

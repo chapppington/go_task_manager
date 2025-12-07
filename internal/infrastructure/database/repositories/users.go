@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"crud/internal/domain/users"
 	"crud/internal/infrastructure/database/converters"
@@ -25,12 +25,12 @@ func NewUsersRepository(db *gorm.DB) *UsersRepository {
 // Create создает нового пользователя
 func (r *UsersRepository) Create(ctx context.Context, user *users.User) (*users.User, error) {
 	if user == nil {
-		return nil, fmt.Errorf("user cannot be nil")
+		return nil, &users.InvalidUserDataError{Field: "user", Message: "user cannot be nil"}
 	}
 
 	model := converters.UserEntityToModel(user)
 	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
-		return nil, fmt.Errorf("failed to create user: %w", err)
+		return nil, &users.UserOperationFailedError{Operation: "create", Reason: err.Error()}
 	}
 
 	return converters.UserModelToEntity(model)
@@ -40,10 +40,10 @@ func (r *UsersRepository) Create(ctx context.Context, user *users.User) (*users.
 func (r *UsersRepository) GetByID(ctx context.Context, id uuid.UUID) (*users.User, error) {
 	var model models.User
 	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&model).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf("user not found: %s", id)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &users.UserNotFoundError{UserID: id}
 		}
-		return nil, fmt.Errorf("failed to get user by id: %w", err)
+		return nil, &users.UserOperationFailedError{Operation: "get_by_id", Reason: err.Error()}
 	}
 
 	return converters.UserModelToEntity(&model)
@@ -53,10 +53,10 @@ func (r *UsersRepository) GetByID(ctx context.Context, id uuid.UUID) (*users.Use
 func (r *UsersRepository) GetByEmail(ctx context.Context, email string) (*users.User, error) {
 	var model models.User
 	if err := r.db.WithContext(ctx).Where("email = ?", email).First(&model).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf("user with email %s not found", email)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &users.UserNotFoundError{Email: email}
 		}
-		return nil, fmt.Errorf("failed to get user by email: %w", err)
+		return nil, &users.UserOperationFailedError{Operation: "get_by_email", Reason: err.Error()}
 	}
 
 	return converters.UserModelToEntity(&model)
@@ -69,7 +69,7 @@ func (r *UsersRepository) List(ctx context.Context, page, pageSize int) ([]*user
 
 	// Подсчет общего количества
 	if err := r.db.WithContext(ctx).Model(&models.User{}).Count(&total).Error; err != nil {
-		return nil, 0, fmt.Errorf("failed to count users: %w", err)
+		return nil, 0, &users.UserOperationFailedError{Operation: "list_count", Reason: err.Error()}
 	}
 
 	// Получение данных с пагинацией
@@ -82,14 +82,14 @@ func (r *UsersRepository) List(ctx context.Context, page, pageSize int) ([]*user
 		Offset(offset).
 		Limit(pageSize).
 		Find(&userModels).Error; err != nil {
-		return nil, 0, fmt.Errorf("failed to list users: %w", err)
+		return nil, 0, &users.UserOperationFailedError{Operation: "list", Reason: err.Error()}
 	}
 
 	domainUsers := make([]*users.User, 0, len(userModels))
 	for _, model := range userModels {
 		user, err := converters.UserModelToEntity(model)
 		if err != nil {
-			return nil, 0, fmt.Errorf("failed to convert user: %w", err)
+			return nil, 0, &users.UserOperationFailedError{Operation: "list_convert", Reason: err.Error()}
 		}
 		if user != nil {
 			domainUsers = append(domainUsers, user)
@@ -102,17 +102,17 @@ func (r *UsersRepository) List(ctx context.Context, page, pageSize int) ([]*user
 // Update обновляет данные пользователя
 func (r *UsersRepository) Update(ctx context.Context, user *users.User) (*users.User, error) {
 	if user == nil {
-		return nil, fmt.Errorf("user cannot be nil")
+		return nil, &users.InvalidUserDataError{Field: "user", Message: "user cannot be nil"}
 	}
 
 	model := converters.UserEntityToModel(user)
 	model.UpdatedAt = user.UpdatedAt
 
 	if err := r.db.WithContext(ctx).Save(model).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf("user not found: %s", user.ID)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &users.UserNotFoundError{UserID: user.ID}
 		}
-		return nil, fmt.Errorf("failed to update user: %w", err)
+		return nil, &users.UserOperationFailedError{Operation: "update", Reason: err.Error()}
 	}
 
 	return converters.UserModelToEntity(model)
@@ -122,10 +122,10 @@ func (r *UsersRepository) Update(ctx context.Context, user *users.User) (*users.
 func (r *UsersRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	result := r.db.WithContext(ctx).Delete(&models.User{}, "id = ?", id)
 	if result.Error != nil {
-		return fmt.Errorf("failed to delete user: %w", result.Error)
+		return &users.UserOperationFailedError{Operation: "delete", Reason: result.Error.Error()}
 	}
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("user not found: %s", id)
+		return &users.UserNotFoundError{UserID: id}
 	}
 	return nil
 }

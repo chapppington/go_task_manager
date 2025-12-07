@@ -17,11 +17,11 @@ func TestUserNameValueObject(t *testing.T) {
 
 	// Тест пустого имени
 	_, err = vo.NewUserNameValueObject("")
-	assert.Error(t, err, "Expected error for empty name")
+	assert.True(t, vo.IsInvalidName(err))
 
 	// Тест слишком короткого имени
 	_, err = vo.NewUserNameValueObject("A")
-	assert.Error(t, err, "Expected error for name shorter than 2 characters")
+	assert.True(t, vo.IsInvalidName(err))
 
 	// Тест слишком длинного имени
 	longName := make([]byte, 101)
@@ -29,7 +29,7 @@ func TestUserNameValueObject(t *testing.T) {
 		longName[i] = 'A'
 	}
 	_, err = vo.NewUserNameValueObject(string(longName))
-	assert.Error(t, err, "Expected error for name longer than 100 characters")
+	assert.True(t, vo.IsInvalidName(err))
 
 	// Тест сравнения имен
 	name1, _ := vo.NewUserNameValueObject("Test User")

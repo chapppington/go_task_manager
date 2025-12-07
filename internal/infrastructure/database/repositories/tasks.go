@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"crud/internal/domain/tasks"
 	"crud/internal/infrastructure/database/converters"
@@ -25,12 +25,16 @@ func NewTasksRepository(db *gorm.DB) *TasksRepository {
 // Create создает новую задачу
 func (r *TasksRepository) Create(ctx context.Context, task *tasks.Task) (*tasks.Task, error) {
 	if task == nil {
-		return nil, fmt.Errorf("task cannot be nil")
+		return nil, &tasks.InvalidTaskDataError{Field: "task", Message: "task cannot be nil"}
 	}
 
 	model := converters.TaskEntityToModel(task)
 	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
-		return nil, fmt.Errorf("failed to create task: %w", err)
+		// Проверяем, не является ли это ошибкой дубликата (если есть уникальный индекс)
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, &tasks.TaskAlreadyExistsError{TaskID: task.ID}
+		}
+		return nil, &tasks.TaskOperationFailedError{Operation: "create", Reason: err.Error()}
 	}
 
 	return converters.TaskModelToEntity(model)
@@ -40,10 +44,10 @@ func (r *TasksRepository) Create(ctx context.Context, task *tasks.Task) (*tasks.
 func (r *TasksRepository) GetByID(ctx context.Context, id uuid.UUID) (*tasks.Task, error) {
 	var model models.Task
 	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&model).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf("task not found: %s", id)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &tasks.TaskNotFoundError{TaskID: id}
 		}
-		return nil, fmt.Errorf("failed to get task by id: %w", err)
+		return nil, &tasks.TaskOperationFailedError{Operation: "get_by_id", Reason: err.Error()}
 	}
 
 	return converters.TaskModelToEntity(&model)
@@ -71,7 +75,7 @@ func (r *TasksRepository) List(
 
 	// Подсчет общего количества с учетом фильтров
 	if err := query.Count(&total).Error; err != nil {
-		return nil, 0, fmt.Errorf("failed to count tasks: %w", err)
+		return nil, 0, &tasks.TaskOperationFailedError{Operation: "list_count", Reason: err.Error()}
 	}
 
 	// Получение данных с пагинацией
@@ -81,14 +85,14 @@ func (r *TasksRepository) List(
 	}
 
 	if err := query.Offset(offset).Limit(pageSize).Find(&taskModels).Error; err != nil {
-		return nil, 0, fmt.Errorf("failed to list tasks: %w", err)
+		return nil, 0, &tasks.TaskOperationFailedError{Operation: "list", Reason: err.Error()}
 	}
 
 	domainTasks := make([]*tasks.Task, 0, len(taskModels))
 	for _, model := range taskModels {
 		task, err := converters.TaskModelToEntity(model)
 		if err != nil {
-			return nil, 0, fmt.Errorf("failed to convert task: %w", err)
+			return nil, 0, &tasks.TaskOperationFailedError{Operation: "list_convert", Reason: err.Error()}
 		}
 		if task != nil {
 			domainTasks = append(domainTasks, task)
@@ -101,17 +105,17 @@ func (r *TasksRepository) List(
 // Update обновляет данные задачи
 func (r *TasksRepository) Update(ctx context.Context, task *tasks.Task) (*tasks.Task, error) {
 	if task == nil {
-		return nil, fmt.Errorf("task cannot be nil")
+		return nil, &tasks.InvalidTaskDataError{Field: "task", Message: "task cannot be nil"}
 	}
 
 	model := converters.TaskEntityToModel(task)
 	model.UpdatedAt = task.UpdatedAt
 
 	if err := r.db.WithContext(ctx).Save(model).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf("task not found: %s", task.ID)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &tasks.TaskNotFoundError{TaskID: task.ID}
 		}
-		return nil, fmt.Errorf("failed to update task: %w", err)
+		return nil, &tasks.TaskOperationFailedError{Operation: "update", Reason: err.Error()}
 	}
 
 	return converters.TaskModelToEntity(model)
@@ -121,10 +125,10 @@ func (r *TasksRepository) Update(ctx context.Context, task *tasks.Task) (*tasks.
 func (r *TasksRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	result := r.db.WithContext(ctx).Delete(&models.Task{}, "id = ?", id)
 	if result.Error != nil {
-		return fmt.Errorf("failed to delete task: %w", result.Error)
+		return &tasks.TaskOperationFailedError{Operation: "delete", Reason: result.Error.Error()}
 	}
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("task not found: %s", id)
+		return &tasks.TaskNotFoundError{TaskID: id}
 	}
 	return nil
 }

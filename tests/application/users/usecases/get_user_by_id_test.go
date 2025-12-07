@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	users "crud/internal/application/users/usecases"
+	users_domain "crud/internal/domain/users"
 	"crud/tests"
 
 	"github.com/google/uuid"
@@ -44,8 +45,7 @@ func TestGetUserByIDUseCase_Execute(t *testing.T) {
 	t.Run("user not found", func(t *testing.T) {
 		nonExistentID := uuid.New()
 		user, err := getUseCase.Execute(ctx, nonExistentID)
-		assert.Error(t, err)
 		assert.Nil(t, user)
-		assert.Contains(t, err.Error(), "not found")
+		assert.True(t, users_domain.IsUserNotFound(err))
 	})
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	tasks "crud/internal/application/tasks/usecases"
+	tasks_domain "crud/internal/domain/tasks"
 	"crud/tests"
 
 	"github.com/google/uuid"
@@ -38,14 +39,12 @@ func TestDeleteTaskUseCase_Execute(t *testing.T) {
 
 		// Проверяем, что задача удалена
 		_, err = getUseCase.Execute(ctx, task.ID)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "not found")
+		assert.True(t, tasks_domain.IsTaskNotFound(err))
 	})
 
 	t.Run("task not found", func(t *testing.T) {
 		nonExistentID := uuid.New()
 		err := deleteUseCase.Execute(ctx, nonExistentID)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "not found")
+		assert.True(t, tasks_domain.IsTaskNotFound(err))
 	})
 }

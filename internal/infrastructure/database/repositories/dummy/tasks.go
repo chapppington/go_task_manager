@@ -2,7 +2,6 @@ package dummy
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"crud/internal/domain/tasks"
@@ -29,7 +28,14 @@ func (r *TasksRepository) Create(ctx context.Context, task *tasks.Task) (*tasks.
 	defer r.mu.Unlock()
 
 	if task == nil {
-		return nil, fmt.Errorf("task cannot be nil")
+		return nil, &tasks.InvalidTaskDataError{Field: "task", Message: "task cannot be nil"}
+	}
+
+	// Проверяем, не существует ли уже задача с таким ID
+	for _, t := range r.tasks {
+		if t.ID == task.ID {
+			return nil, &tasks.TaskAlreadyExistsError{TaskID: task.ID}
+		}
 	}
 
 	r.tasks = append(r.tasks, task)
@@ -47,7 +53,7 @@ func (r *TasksRepository) GetByID(ctx context.Context, id uuid.UUID) (*tasks.Tas
 		}
 	}
 
-	return nil, fmt.Errorf("task not found: %s", id)
+	return nil, &tasks.TaskNotFoundError{TaskID: id}
 }
 
 // List возвращает список задач с фильтрацией и пагинацией
@@ -96,7 +102,7 @@ func (r *TasksRepository) Update(ctx context.Context, task *tasks.Task) (*tasks.
 	defer r.mu.Unlock()
 
 	if task == nil {
-		return nil, fmt.Errorf("task cannot be nil")
+		return nil, &tasks.InvalidTaskDataError{Field: "task", Message: "task cannot be nil"}
 	}
 
 	for i, t := range r.tasks {
@@ -106,7 +112,7 @@ func (r *TasksRepository) Update(ctx context.Context, task *tasks.Task) (*tasks.
 		}
 	}
 
-	return nil, fmt.Errorf("task not found: %s", task.ID)
+	return nil, &tasks.TaskNotFoundError{TaskID: task.ID}
 }
 
 // Delete удаляет задачу по ID
@@ -121,5 +127,5 @@ func (r *TasksRepository) Delete(ctx context.Context, id uuid.UUID) error {
 		}
 	}
 
-	return fmt.Errorf("task not found: %s", id)
+	return &tasks.TaskNotFoundError{TaskID: id}
 }

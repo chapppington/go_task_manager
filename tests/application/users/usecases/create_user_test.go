@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	users "crud/internal/application/users/usecases"
+	users_domain "crud/internal/domain/users"
+	vo "crud/internal/domain/users/value_objects"
 	"crud/tests"
 
 	"github.com/google/uuid"
@@ -35,20 +37,20 @@ func TestCreateUserUseCase_Execute(t *testing.T) {
 
 	t.Run("invalid email", func(t *testing.T) {
 		user, err := useCase.Execute(ctx, "invalid-email", "Test User")
-		assert.Error(t, err)
 		assert.Nil(t, user)
+		assert.True(t, vo.IsInvalidEmail(err))
 	})
 
 	t.Run("empty email", func(t *testing.T) {
 		user, err := useCase.Execute(ctx, "", "Test User")
-		assert.Error(t, err)
 		assert.Nil(t, user)
+		assert.True(t, vo.IsInvalidEmail(err))
 	})
 
 	t.Run("empty name", func(t *testing.T) {
 		user, err := useCase.Execute(ctx, "test@example.com", "")
-		assert.Error(t, err)
 		assert.Nil(t, user)
+		assert.True(t, vo.IsInvalidName(err))
 	})
 
 	t.Run("duplicate email", func(t *testing.T) {
@@ -58,8 +60,7 @@ func TestCreateUserUseCase_Execute(t *testing.T) {
 		require.NotNil(t, user1)
 
 		user2, err := useCase.Execute(ctx, email, "User 2")
-		assert.Error(t, err)
 		assert.Nil(t, user2)
-		assert.Contains(t, err.Error(), "already exists")
+		assert.True(t, users_domain.IsUserAlreadyExists(err))
 	})
 }
