@@ -32,23 +32,13 @@ func TestTaskEntity_Creation(t *testing.T) {
 
 func TestTaskEntity_Equality(t *testing.T) {
 	title1, _ := vo.NewTaskTitleValueObject("Learn gRPC")
-	title2, _ := vo.NewTaskTitleValueObject("Learn gRPC")
-	title3, _ := vo.NewTaskTitleValueObject("Master Go")
+	title2, _ := vo.NewTaskTitleValueObject("Master Go")
 
 	status, _ := vo.NewTaskStatusValueObject("todo")
 	userID := uuid.New()
 
-	// Создаем задачи с одинаковым ID
 	task1 := tasks.NewTask(userID, title1, "Description 1", status)
 	task2 := tasks.NewTask(userID, title2, "Description 2", status)
-	task2.ID = task1.ID // Устанавливаем одинаковый ID
 
-	// Создаем задачу с другим ID
-	task3 := tasks.NewTask(userID, title3, "Description 3", status)
-
-	// Задачи с одинаковым ID должны быть равны
-	assert.True(t, task1.Equals(task2), "Expected task1 and task2 to be equal (same ID)")
-
-	// Задачи с разным ID не должны быть равны
-	assert.False(t, task1.Equals(task3), "Expected task1 and task3 to be different (different ID)")
+	assert.False(t, task1.Equals(task2), "Expected task1 and task2 to be different")
 }

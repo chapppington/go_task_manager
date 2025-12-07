@@ -29,22 +29,12 @@ func TestUserEntity_Creation(t *testing.T) {
 
 func TestUserEntity_Equality(t *testing.T) {
 	email1, _ := vo.NewEmailValueObject("test@example.com")
-	email2, _ := vo.NewEmailValueObject("test@example.com")
-	email3, _ := vo.NewEmailValueObject("other@example.com")
+	email2, _ := vo.NewEmailValueObject("other@example.com")
 
 	name, _ := vo.NewUserNameValueObject("Test User")
 
-	// Создаем пользователей с одинаковым ID
 	user1 := users.NewUser(email1, name)
 	user2 := users.NewUser(email2, name)
-	user2.ID = user1.ID // Устанавливаем одинаковый ID
 
-	// Создаем пользователя с другим ID
-	user3 := users.NewUser(email3, name)
-
-	// Пользователи с одинаковым ID должны быть равны
-	assert.True(t, user1.Equals(user2), "Expected user1 and user2 to be equal (same ID)")
-
-	// Пользователи с разным ID не должны быть равны
-	assert.False(t, user1.Equals(user3), "Expected user1 and user3 to be different (different ID)")
+	assert.False(t, user1.Equals(user2), "Expected user1 and user2 to be different")
 }

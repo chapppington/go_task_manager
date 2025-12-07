@@ -42,21 +42,14 @@ func main() {
 	})
 
 	// Получаем конфиг для порта
-	var cfg *config.Config
-	if err := container.Invoke(func(c *config.Config) {
-		cfg = c
-	}); err != nil {
+	cfg, err := application.ResolveFromContainer[*config.Config](container)
+	if err != nil {
 		log.Fatalf("Failed to get config: %v", err)
 	}
 
-	port := cfg.APIPort
-	if port == 0 {
-		port = 8000
-	}
-
 	// Запускаем сервер
-	log.Printf("Server starting on port %d", port)
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), r); err != nil {
+	log.Printf("Server starting on port %d", cfg.APIPort)
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", cfg.APIPort), r); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }
