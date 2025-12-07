@@ -18,10 +18,10 @@ func TestGetUserByEmailUseCase_Execute(t *testing.T) {
 	// Создаем новый контейнер для теста
 	container := tests.NewTestContainer()
 
-	createUseCase, err := tests.ResolveTest[*users.CreateUserUseCase](container)
+	createUseCase, err := tests.ResolveFromContainer[*users.CreateUserUseCase](container)
 	require.NoError(t, err)
 
-	getByEmailUseCase, err := tests.ResolveTest[*users.GetUserByEmailUseCase](container)
+	getByEmailUseCase, err := tests.ResolveFromContainer[*users.GetUserByEmailUseCase](container)
 	require.NoError(t, err)
 
 	t.Run("successful retrieval", func(t *testing.T) {

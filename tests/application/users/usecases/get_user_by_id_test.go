@@ -20,10 +20,10 @@ func TestGetUserByIDUseCase_Execute(t *testing.T) {
 	container := tests.NewTestContainer()
 
 	// Получаем use cases из контейнера
-	createUseCase, err := tests.ResolveTest[*users.CreateUserUseCase](container)
+	createUseCase, err := tests.ResolveFromContainer[*users.CreateUserUseCase](container)
 	require.NoError(t, err)
 
-	getUseCase, err := tests.ResolveTest[*users.GetUserByIDUseCase](container)
+	getUseCase, err := tests.ResolveFromContainer[*users.GetUserByIDUseCase](container)
 	require.NoError(t, err)
 
 	t.Run("successful retrieval", func(t *testing.T) {

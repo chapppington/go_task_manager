@@ -41,8 +41,8 @@ func initTestContainer(c *dig.Container) {
 	c.Provide(application_users.NewDeleteUserUseCase)
 }
 
-// ResolveTest получает зависимость из тестового контейнера по типу
-func ResolveTest[T any](container *dig.Container) (T, error) {
+// ResolveFromContainer получает зависимость из тестового контейнера по типу
+func ResolveFromContainer[T any](container *dig.Container) (T, error) {
 	var result T
 	err := container.Invoke(func(dep T) {
 		result = dep

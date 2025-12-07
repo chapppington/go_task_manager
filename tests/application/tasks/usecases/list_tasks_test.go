@@ -18,10 +18,10 @@ func TestListTasksUseCase_Execute(t *testing.T) {
 	// Создаем новый контейнер для теста
 	container := tests.NewTestContainer()
 
-	createUseCase, err := tests.ResolveTest[*tasks.CreateTaskUseCase](container)
+	createUseCase, err := tests.ResolveFromContainer[*tasks.CreateTaskUseCase](container)
 	require.NoError(t, err)
 
-	listUseCase, err := tests.ResolveTest[*tasks.ListTasksUseCase](container)
+	listUseCase, err := tests.ResolveFromContainer[*tasks.ListTasksUseCase](container)
 	require.NoError(t, err)
 
 	userID1 := uuid.New()

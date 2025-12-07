@@ -21,7 +21,7 @@ func TestCreateUserUseCase_Execute(t *testing.T) {
 	container := tests.NewTestContainer()
 
 	// Получаем use case из контейнера
-	useCase, err := tests.ResolveTest[*users.CreateUserUseCase](container)
+	useCase, err := tests.ResolveFromContainer[*users.CreateUserUseCase](container)
 	require.NoError(t, err)
 
 	t.Run("successful creation", func(t *testing.T) {

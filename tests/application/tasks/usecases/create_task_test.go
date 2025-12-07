@@ -20,7 +20,7 @@ func TestCreateTaskUseCase_Execute(t *testing.T) {
 	container := tests.NewTestContainer()
 
 	// Получаем use case из контейнера
-	useCase, err := tests.ResolveTest[*tasks.CreateTaskUseCase](container)
+	useCase, err := tests.ResolveFromContainer[*tasks.CreateTaskUseCase](container)
 	require.NoError(t, err)
 
 	// Создаем пользователя для теста

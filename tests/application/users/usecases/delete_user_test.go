@@ -19,13 +19,13 @@ func TestDeleteUserUseCase_Execute(t *testing.T) {
 	// Создаем новый контейнер для теста
 	container := tests.NewTestContainer()
 
-	createUseCase, err := tests.ResolveTest[*users.CreateUserUseCase](container)
+	createUseCase, err := tests.ResolveFromContainer[*users.CreateUserUseCase](container)
 	require.NoError(t, err)
 
-	deleteUseCase, err := tests.ResolveTest[*users.DeleteUserUseCase](container)
+	deleteUseCase, err := tests.ResolveFromContainer[*users.DeleteUserUseCase](container)
 	require.NoError(t, err)
 
-	getUseCase, err := tests.ResolveTest[*users.GetUserByIDUseCase](container)
+	getUseCase, err := tests.ResolveFromContainer[*users.GetUserByIDUseCase](container)
 	require.NoError(t, err)
 
 	t.Run("successful deletion", func(t *testing.T) {

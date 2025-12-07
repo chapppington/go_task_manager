@@ -19,13 +19,13 @@ func TestDeleteTaskUseCase_Execute(t *testing.T) {
 	// Создаем новый контейнер для теста
 	container := tests.NewTestContainer()
 
-	createUseCase, err := tests.ResolveTest[*tasks.CreateTaskUseCase](container)
+	createUseCase, err := tests.ResolveFromContainer[*tasks.CreateTaskUseCase](container)
 	require.NoError(t, err)
 
-	deleteUseCase, err := tests.ResolveTest[*tasks.DeleteTaskUseCase](container)
+	deleteUseCase, err := tests.ResolveFromContainer[*tasks.DeleteTaskUseCase](container)
 	require.NoError(t, err)
 
-	getUseCase, err := tests.ResolveTest[*tasks.GetTaskByIDUseCase](container)
+	getUseCase, err := tests.ResolveFromContainer[*tasks.GetTaskByIDUseCase](container)
 	require.NoError(t, err)
 
 	userID := uuid.New()

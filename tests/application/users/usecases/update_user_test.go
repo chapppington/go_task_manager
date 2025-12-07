@@ -20,13 +20,13 @@ func TestUpdateUserUseCase_Execute(t *testing.T) {
 	// Создаем новый контейнер для теста
 	container := tests.NewTestContainer()
 
-	createUseCase, err := tests.ResolveTest[*users.CreateUserUseCase](container)
+	createUseCase, err := tests.ResolveFromContainer[*users.CreateUserUseCase](container)
 	require.NoError(t, err)
 
-	updateUseCase, err := tests.ResolveTest[*users.UpdateUserUseCase](container)
+	updateUseCase, err := tests.ResolveFromContainer[*users.UpdateUserUseCase](container)
 	require.NoError(t, err)
 
-	getUseCase, err := tests.ResolveTest[*users.GetUserByIDUseCase](container)
+	getUseCase, err := tests.ResolveFromContainer[*users.GetUserByIDUseCase](container)
 	require.NoError(t, err)
 
 	t.Run("update email", func(t *testing.T) {

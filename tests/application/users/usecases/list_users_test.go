@@ -17,10 +17,10 @@ func TestListUsersUseCase_Execute(t *testing.T) {
 	// Создаем новый контейнер для теста
 	container := tests.NewTestContainer()
 
-	createUseCase, err := tests.ResolveTest[*users.CreateUserUseCase](container)
+	createUseCase, err := tests.ResolveFromContainer[*users.CreateUserUseCase](container)
 	require.NoError(t, err)
 
-	listUseCase, err := tests.ResolveTest[*users.ListUsersUseCase](container)
+	listUseCase, err := tests.ResolveFromContainer[*users.ListUsersUseCase](container)
 	require.NoError(t, err)
 
 	// Создаем несколько пользователей

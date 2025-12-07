@@ -20,10 +20,10 @@ func TestGetTaskByIDUseCase_Execute(t *testing.T) {
 	container := tests.NewTestContainer()
 
 	// Получаем use cases и репозиторий из контейнера
-	createUseCase, err := tests.ResolveTest[*tasks.CreateTaskUseCase](container)
+	createUseCase, err := tests.ResolveFromContainer[*tasks.CreateTaskUseCase](container)
 	require.NoError(t, err)
 
-	getUseCase, err := tests.ResolveTest[*tasks.GetTaskByIDUseCase](container)
+	getUseCase, err := tests.ResolveFromContainer[*tasks.GetTaskByIDUseCase](container)
 	require.NoError(t, err)
 
 	userID := uuid.New()
