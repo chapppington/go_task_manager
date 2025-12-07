@@ -31,8 +31,7 @@ func TestGetUserByID(t *testing.T) {
 	response := ExecuteRequest(router, http.MethodGet, "/api/v1/users/"+createResponse.ID, nil)
 	assert.Equal(t, http.StatusOK, response.Code)
 
-	var getResponse v1_users.UserResponse
-	DecodeJSONResponse(t, response, &getResponse)
+	getResponse := DecodeJSONResponse[v1_users.UserResponse](t, response)
 
 	assert.Equal(t, createResponse.ID, getResponse.ID)
 	assert.Equal(t, createResponse.Email, getResponse.Email)
@@ -49,8 +48,7 @@ func TestGetUserByEmail(t *testing.T) {
 	response := ExecuteRequest(router, http.MethodGet, "/api/v1/users/email/"+createResponse.Email, nil)
 	assert.Equal(t, http.StatusOK, response.Code)
 
-	var getResponse v1_users.UserResponse
-	DecodeJSONResponse(t, response, &getResponse)
+	getResponse := DecodeJSONResponse[v1_users.UserResponse](t, response)
 
 	assert.Equal(t, createResponse.ID, getResponse.ID)
 	assert.Equal(t, createResponse.Email, getResponse.Email)
@@ -93,8 +91,7 @@ func TestUpdateUser(t *testing.T) {
 	response := ExecuteRequest(router, http.MethodPut, "/api/v1/users/"+createResponse.ID, updateReqBody)
 	assert.Equal(t, http.StatusOK, response.Code)
 
-	var updateResponse v1_users.UserResponse
-	DecodeJSONResponse(t, response, &updateResponse)
+	updateResponse := DecodeJSONResponse[v1_users.UserResponse](t, response)
 
 	assert.Equal(t, createResponse.ID, updateResponse.ID)
 	assert.Equal(t, createResponse.Email, updateResponse.Email)

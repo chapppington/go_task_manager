@@ -38,8 +38,7 @@ func TestGetTaskByID(t *testing.T) {
 	response := ExecuteRequest(router, http.MethodGet, "/api/v1/tasks/"+createTaskResponse.ID, nil)
 	assert.Equal(t, http.StatusOK, response.Code)
 
-	var getResponse v1_tasks.TaskResponse
-	DecodeJSONResponse(t, response, &getResponse)
+	getResponse := DecodeJSONResponse[v1_tasks.TaskResponse](t, response)
 
 	assert.Equal(t, createTaskResponse.ID, getResponse.ID)
 	assert.Equal(t, createTaskResponse.Title, getResponse.Title)
@@ -110,8 +109,7 @@ func TestUpdateTask(t *testing.T) {
 	response := ExecuteRequest(router, http.MethodPut, "/api/v1/tasks/"+createTaskResponse.ID, updateReqBody)
 	assert.Equal(t, http.StatusOK, response.Code)
 
-	var updateResponse v1_tasks.TaskResponse
-	DecodeJSONResponse(t, response, &updateResponse)
+	updateResponse := DecodeJSONResponse[v1_tasks.TaskResponse](t, response)
 
 	assert.Equal(t, createTaskResponse.ID, updateResponse.ID)
 	assert.Equal(t, "Updated Task Title", updateResponse.Title)

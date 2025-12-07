@@ -92,10 +92,12 @@ func ExecuteRequest(router chi.Router, method, path string, body interface{}) *h
 	return responseRecorder
 }
 
-// DecodeJSONResponse декодирует JSON ответ в указанную структуру
-func DecodeJSONResponse(t *testing.T, response *httptest.ResponseRecorder, target interface{}) {
-	err := json.NewDecoder(response.Body).Decode(target)
+// DecodeJSONResponse декодирует JSON ответ и возвращает декодированную структуру
+func DecodeJSONResponse[T any](t *testing.T, response *httptest.ResponseRecorder) T {
+	var result T
+	err := json.NewDecoder(response.Body).Decode(&result)
 	require.NoError(t, err)
+	return result
 }
 
 // DecodeJSONListResponse декодирует JSON ответ со списком (с полями data и total)
